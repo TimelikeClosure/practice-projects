@@ -1,0 +1,11 @@
+{
+  "name": "rock-paper-scissors",
+  "version": "1.0.0",
+  "description": "- Create a game with two players (You and a Computer)",
+  "main": "app.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
