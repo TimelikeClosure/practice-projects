@@ -1,4 +1,4 @@
 "use strict";
-require('./model');
+require('./public/model');
 
 
