@@ -1,4 +1,4 @@
 "use strict";
-require('./public/model');
+const rps = require('./public/model');
 
-
+console.log(rps());
