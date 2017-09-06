@@ -2,7 +2,7 @@
 
 const rpsContainer = getModuleContainer(this, (typeof module !== "undefined") ? module : null);
 
-rpsContainer[getModuleKey(this, rpsContainer)] = rockPaperScissors;
+rpsContainer[getModuleKey(this, rpsContainer)] = defineRockPaperScissorsMoves;
 
 function getModuleContainer(context, container){
     if (context.hasOwnProperty("Window") && context instanceof context["Window"]){
@@ -22,6 +22,10 @@ function getModuleKey(context, container){
     return false;
 }
 
-function rockPaperScissors(){
-    
+function defineRockPaperScissorsMoves(moveSet){
+    return setPlayers;
+
+    function setPlayers(player1, player2){
+        
+    }
 }
