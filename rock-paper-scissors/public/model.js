@@ -1,6 +1,8 @@
 /**
  * Goal - Write Rock-Paper-Scissors game model using bit logic
- *   - Memory - as compact as possible (every bit means something)
+ *   - Memory - as compact as possible 
+ *      - every bit means something
+ *      - keep the call stack as short as possible
  *   - State Changes and Evaluation
  *      - using only bitwise operations, assignments, and sub-routines (no standard math/logic ops, loops, recursion, conditionals)
  */
@@ -23,16 +25,27 @@ const COMP_MASK = USER_MASK << 2;
  *  11 - User and Comp tied
  */
 const ROUND_MASK = (1 << 1 | 1) << 4;
+
+/**
+ * Overall game state is represented by 6 bits:
+ *  |00|00|00| --> |00 - round state|00 - comp hand|00 - user hand|
+ */
 const STATE_MASK = USER_MASK | COMP_MASK | ROUND_MASK;
 
-var rpsState = 0;
-
+/**
+ * For initial game state and after reset, all bits are set to 0
+ */
+let rpsState = 0;
 function nextRound(){
     rpsState = 0;
 }
 
+/**
+ * The round is completed once the user's hand is supplied. Will not affect rounds already completed.
+ * @param {int} userMove - the 2-bit respresentation of the user's hand
+ */
 function processRound(userMove){
-    //  Stop if game in-play
+    //  Stop if game in-play (Note: currently the only used conditiional)
     if (rpsState & STATE_MASK) return;
 
     //  Apply user's move to state
@@ -147,6 +160,9 @@ function processRound(userMove){
     rpsState |= (roundState << 4) & ROUND_MASK;
 }
 
+/**
+ * If the model is being tested though Node, export it as a module
+ */
 if ((!this.hasOwnProperty('Window') || !(this instanceof this.Window)) && typeof module === "object" && module !== null){
     module.exports = {
         getState: () => rpsState,
