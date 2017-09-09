@@ -18,11 +18,11 @@ const COMP_MASK = USER_MASK << 2;
 /**
  * Round state is represented by 2 bits:
  *  00 - Round in progress
- *  01 - Player 1 won round
- *  10 - Player 2 won round
- *  11 - Players 1 & 2 tied
+ *  01 - Comp won round
+ *  10 - User won round
+ *  11 - User and Comp tied
  */
-const ROUND_MASK = 1 << 1 || 1 << 4;
+const ROUND_MASK = (1 << 1 | 1) << 4;
 const STATE_MASK = USER_MASK | COMP_MASK | ROUND_MASK;
 
 var rpsState = 0;
@@ -38,49 +38,113 @@ function processRound(userMove){
     //  Apply user's move to state
     rpsState |= userMove;
 
-    //  Generate computer's move
-    let compMove = 1 << 1 | 1;
-    const MOD_3_MASK = 1 << 3;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;  //  1
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;  //  11
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;  //  21
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;  //  31
-    compMove <<= Math.round(Math.random()); compMove |= (compMove & MOD_3_MASK) >> 3; compMove &= ~MOD_3_MASK;
-    //console.log(compMove << 2) & COMP_MASK;
+    //  Generate computer's move and round state
+    const PROGRESS_MASK = 1 << 1 | 1;
+    const RESET_MASK = 1 << 2;
+    let compMove = ((userMove & 1) ^ (userMove >>> 1 & 1)) << 2 | userMove;
+    let roundState = 1 << 1 | 1;
+    let randomBit;
 
-    //  Apply computer's move to state
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+    randomBit = Math.round(Math.random());
+    compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
+    roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
+
+    //  Apply computer's move and round state to game state
     rpsState |= (compMove << 2) & COMP_MASK;
-
-    //  Generate new round status
-
-    //  Apply round status to state
+    rpsState |= (roundState << 4) & ROUND_MASK;
 }
 
 if ((!this.hasOwnProperty('Window') || !(this instanceof this.Window)) && typeof module === "object" && module !== null){
