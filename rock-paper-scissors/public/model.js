@@ -45,9 +45,6 @@ function nextRound(){
  * @param {int} userMove - the 2-bit respresentation of the user's hand
  */
 function processRound(userMove){
-    //  Stop if game in-play (Note: currently the only used conditiional)
-    if (rpsState & STATE_MASK) return;
-
     //  Generate computer's move and round state
     const PROGRESS_MASK = 1 << 1 | 1;
     const RESET_MASK = 1 << 2;
@@ -152,10 +149,22 @@ function processRound(userMove){
     compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
     roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
 
+    //  Generate mask to only allow game state updates if game in progress
+
+    const BIT_MASK = 1;
+    let finishedMask = rpsState & STATE_MASK;
+    finishedMask |= finishedMask >>> 3;
+    finishedMask |= finishedMask >>> 1;
+    finishedMask |= finishedMask >>> 1;
+    finishedMask |= (finishedMask << 1) & STATE_MASK;
+    finishedMask |= (finishedMask << 1) & STATE_MASK;
+    finishedMask |= (finishedMask << 3) & STATE_MASK;
+    const IN_PROGRESS_MASK = ~finishedMask & STATE_MASK;
+
     //  Apply user's move, computer's move, and round state to game state
-    rpsState |= userMove;
-    rpsState |= (compMove << 2) & COMP_MASK;
-    rpsState |= (roundState << 4) & ROUND_MASK;
+    rpsState |= userMove & USER_MASK & IN_PROGRESS_MASK;
+    rpsState |= (compMove << 2) & COMP_MASK & IN_PROGRESS_MASK;
+    rpsState |= (roundState << 4) & ROUND_MASK & IN_PROGRESS_MASK;
 }
 
 /**
