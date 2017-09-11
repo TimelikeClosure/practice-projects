@@ -48,9 +48,6 @@ function processRound(userMove){
     //  Stop if game in-play (Note: currently the only used conditiional)
     if (rpsState & STATE_MASK) return;
 
-    //  Apply user's move to state
-    rpsState |= userMove;
-
     //  Generate computer's move and round state
     const PROGRESS_MASK = 1 << 1 | 1;
     const RESET_MASK = 1 << 2;
@@ -155,7 +152,8 @@ function processRound(userMove){
     compMove = ((compMove & PROGRESS_MASK) << randomBit) | ((compMove & RESET_MASK) >>> (randomBit << 1));
     roundState = ((roundState & PROGRESS_MASK) << randomBit) | ((roundState & RESET_MASK) >>> (randomBit << 1));
 
-    //  Apply computer's move and round state to game state
+    //  Apply user's move, computer's move, and round state to game state
+    rpsState |= userMove;
     rpsState |= (compMove << 2) & COMP_MASK;
     rpsState |= (roundState << 4) & ROUND_MASK;
 }
