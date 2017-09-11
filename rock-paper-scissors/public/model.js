@@ -172,7 +172,13 @@ function processRound(userMove){
  */
 if ((!this.hasOwnProperty('Window') || !(this instanceof this.Window)) && typeof module === "object" && module !== null){
     module.exports = {
-        getState: () => rpsState,
+        getState: () => {
+            return {
+                user: rpsState & USER_MASK,
+                comp: (rpsState & COMP_MASK) >>> 2,
+                round: (rpsState & ROUND_MASK) >>> 4
+            };
+        },
         reset: nextRound,
         move: processRound
     };
