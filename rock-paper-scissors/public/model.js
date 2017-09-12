@@ -40,6 +40,14 @@ function nextRound(){
     rpsState = 0;
 }
 
+function getRPSState(){
+    return {
+        user: rpsState & USER_MASK,
+        comp: (rpsState & COMP_MASK) >>> 2,
+        round: (rpsState & ROUND_MASK) >>> 4
+    };
+}
+
 /**
  * The round is completed once the user's hand is supplied. Will not affect rounds already completed.
  * @param {int} userMove - the 2-bit respresentation of the user's hand
@@ -232,13 +240,7 @@ function processRound(userMove){
  */
 if ((!this.hasOwnProperty('Window') || !(this instanceof this.Window)) && typeof module === "object" && module !== null){
     module.exports = {
-        getState: () => {
-            return {
-                user: rpsState & USER_MASK,
-                comp: (rpsState & COMP_MASK) >>> 2,
-                round: (rpsState & ROUND_MASK) >>> 4
-            };
-        },
+        getState: getRPSState,
         reset: nextRound,
         move: processRound
     };

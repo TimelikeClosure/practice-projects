@@ -4,14 +4,16 @@
         <meta charset="utf8">
         <title>Rock Paper Scissors</title>
         <script src="model.js" defer></script>
-        <script src="view_model.js" defer></script>
+        <script src="controller.js" defer></script>
     </head>
     <body>
-        <h1>Rock Paper Scissors</h1>
-        <p>You are playing Rock Paper Scissors against a computer opponent. Pick one of the moves below to begin.</p>
-        <button type="button" name="rock">Rock</button>
-        <button type="button" name="paper">Paper</button>
-        <button type="button" name="scissors">Scissors</button>
-        <div id="result"></div>
+        <header>
+            <h1>Rock-Paper-Scissors</h1>
+        </header>
+        <p></p>
+        <section id="moves"></section>
+        <div class="messages">
+            <p id="status_msg"></p>
+        </div>
     </body>
 </html>
